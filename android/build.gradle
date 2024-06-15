@@ -40,6 +40,8 @@ android {
     dependencies {
         testImplementation 'junit:junit:4.13.2'
         testImplementation 'org.mockito:mockito-core:5.0.0'
+
+        implementation 'com.microsoft.cognitiveservices.speech:client-sdk:1.37.0'
     }
 
     testOptions {
@@ -51,8 +53,4 @@ android {
             }
         }
     }
-}
-
-dependencies {
-    implementation 'com.microsoft.cognitiveservices.speech:client-sdk:1.37.0'
 }
