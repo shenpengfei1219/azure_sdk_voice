@@ -23,27 +23,35 @@ abstract class AzureSdkVoicePlatform extends PlatformInterface {
     _instance = instance;
   }
 
-  Future<String?> init(String key,String region) {
-    throw UnimplementedError('init(String key,String region) has not been implemented.');
+  Future<String?> init(String key, String region) {
+    throw UnimplementedError(
+        'init(String key,String region) has not been implemented.');
   }
 
   Future<String?> startRecording(String name) {
-    throw UnimplementedError('startRecording(String name) has not been implemented.');
+    throw UnimplementedError(
+        'startRecording(String name) has not been implemented.');
   }
+
   Future<String?> stopRecording() {
     throw UnimplementedError('stopRecording() has not been implemented.');
   }
 
   Future<String?> playRecordedAudio(String name) {
-    throw UnimplementedError('playRecordedAudio(String name) has not been implemented.');
+    throw UnimplementedError(
+        'playRecordedAudio(String name) has not been implemented.');
   }
 
-  Future<String?> pronunciationScore(String name,String language,String topic) {
-    throw UnimplementedError('pronunciationScore(String name,String language,String topic) has not been implemented.');
+  Future<String?> pronunciationScore(
+      String name, String language, String topic) {
+    throw UnimplementedError(
+        'pronunciationScore(String name,String language,String topic) has not been implemented.');
   }
 
-  Future<String?> translate(String name,String recLanguage,String toLanguage) {
-    throw UnimplementedError('translate(String name,String recLanguage,String toLanguage) has not been implemented.');
+  Future<String?> translate(
+      String name, String recLanguage, String toLanguage) {
+    throw UnimplementedError(
+        'translate(String name,String recLanguage,String toLanguage) has not been implemented.');
   }
 
   Future<String?> speak(String content) {
