@@ -1,5 +1,5 @@
 name: azure_sdk_voice
-description: azure_sdk_voice
+description: azure_sdk_voice wrapper azure sdk voice , function impl pronunce score and synthies voice and translate
 version: 0.0.1
 homepage: https://github.com/shenpengfei1219/azure_sdk_voice.git
 
