@@ -57,12 +57,13 @@ public class AzureSdkVoicePlugin: NSObject, FlutterPlugin {
       }
     case "translate":
       guard let arguments = call.arguments as? [String: Any],
-            let languageTmp = arguments["language"] as? String,
+            let recLanguageTmp = arguments["recLanguage"] as? String,
+            let toLanguageTmp = arguments["toLanguage"] as? String,
             let nameTmp = arguments["name"] as? String else {
           result(FlutterError(code: "INVALID_ARGUMENTS", message: "Invalid arguments", details: nil))
           return
       }
-      translateWav(key: key,region: region,fileName: nameTmp,language: languageTmp) {res in
+      translateWav(key: key,region: region,fileName: nameTmp,recLanguage: recLanguageTmp,toLanguage: toLanguageTmp) {res in
         result(res)
       }
     case "speak":

@@ -61,9 +61,11 @@ func pronunciationAssessmentWithContentAssessment(key: String,region: String,fil
     }
 }
 
-func translateWav(key: String,region: String,fileName: String,language: String,completion: @escaping (String?) -> Void) {
+func translateWav(key: String,region: String,fileName: String,recLanguage: String,toLanguage: String,completion: @escaping (String?) -> Void) {
     let speechTranslationConfiguration = try! SPXSpeechTranslationConfiguration(subscription: key, region: region)
-    speechTranslationConfiguration.addTargetLanguage("en")
+    
+    speechTranslationConfiguration.speechRecognitionLanguage = recLanguage;
+    speechTranslationConfiguration.addTargetLanguage(toLanguage)
 
     print("key:",key,"region:",region)
 
@@ -73,14 +75,19 @@ func translateWav(key: String,region: String,fileName: String,language: String,c
 
     let audioConfig = SPXAudioConfiguration.init(wavFileInput: audioFilename.path)
     let translator = try! SPXTranslationRecognizer(speechTranslationConfiguration: speechTranslationConfiguration, audioConfiguration: audioConfig!)
+    
+    translator.addTargetLanguage(toLanguage)
 
-    let result = try! translator.recognizeOnce()
-    let translationDictionary = result.translations
-    let dictKeys  = Array(translationDictionary.keys)
-    print(dictKeys)
-    let translationResult = translationDictionary["en"] as? String
-    print("English translation result: \(translationResult ?? "(no result)")")
-    completion("ok2")
+    try! translator.recognizeOnceAsync { result in
+        let translationDictionary = result.translations
+        let dictKeys  = Array(translationDictionary.keys)
+        print(dictKeys)
+        let translationResult = translationDictionary["en"] as? String
+        print("English translation result: \(translationResult ?? "(no result)")")
+        completion("\(translationResult ?? "(translate failed)")")
+    }
+    
+    
 }
 
 func synthesisToSpeaker(key: String,region: String,inputText: String) {
