@@ -21,22 +21,34 @@ public class AzureSdk {
 
         SpeechSynthesizer speechSynthesizer = new SpeechSynthesizer(speechConfig);
 
-        SpeechSynthesisResult speechSynthesisResult = speechSynthesizer.SpeakSsmlAsync(inputText).get();
+        Thread synthesisThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                SpeechSynthesisResult speechSynthesisResult = null;
+                try {
+                    speechSynthesisResult = speechSynthesizer.SpeakSsmlAsync(inputText).get();
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
 
-        if (speechSynthesisResult.getReason() == ResultReason.SynthesizingAudioCompleted) {
-            System.out.println("Speech synthesized to speaker for text [" + inputText + "]");
-        }
-        else if (speechSynthesisResult.getReason() == ResultReason.Canceled) {
-            SpeechSynthesisCancellationDetails cancellation = SpeechSynthesisCancellationDetails.fromResult(speechSynthesisResult);
-            System.out.println("CANCELED: Reason=" + cancellation.getReason());
+                if (speechSynthesisResult.getReason() == ResultReason.SynthesizingAudioCompleted) {
+                    System.out.println("Speech synthesized to speaker for text [" + inputText + "]");
+                }
+                else if (speechSynthesisResult.getReason() == ResultReason.Canceled) {
+                    SpeechSynthesisCancellationDetails cancellation = SpeechSynthesisCancellationDetails.fromResult(speechSynthesisResult);
+                    System.out.println("CANCELED: Reason=" + cancellation.getReason());
 
-            if (cancellation.getReason() == CancellationReason.Error) {
-                System.out.println("CANCELED: ErrorCode=" + cancellation.getErrorCode());
-                System.out.println("CANCELED: ErrorDetails=" + cancellation.getErrorDetails());
-                System.out.println("CANCELED: Did you set the speech resource key and region values?");
+                    if (cancellation.getReason() == CancellationReason.Error) {
+                        System.out.println("CANCELED: ErrorCode=" + cancellation.getErrorCode());
+                        System.out.println("CANCELED: ErrorDetails=" + cancellation.getErrorDetails());
+                        System.out.println("CANCELED: Did you set the speech resource key and region values?");
+                    }
+                }
             }
-        }
-
+        });
+        synthesisThread.start();
     }
 
     public static String translateWav(String speechKey,String speechRegion,String fileName,String recognitionLanguage,String toLanguage) throws InterruptedException, ExecutionException {
