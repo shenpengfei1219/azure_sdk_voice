@@ -1,6 +1,21 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
   package="com.aiweiju.azure_sdk_voice">
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+<!--    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />-->
+<!--    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />-->
+
+
+    <application>
+
+        <provider
+            android:authorities="${applicationId}.util.InternalContentProvider"
+            android:name="com.microsoft.cognitiveservices.speech.util.InternalContentProvider"
+            tools:replace="android:authorities"
+            android:exported="false" />
+
+
+    </application>
+
+
 </manifest>

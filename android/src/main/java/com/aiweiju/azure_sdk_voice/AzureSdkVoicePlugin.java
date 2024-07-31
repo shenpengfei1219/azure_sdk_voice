@@ -21,16 +21,21 @@ public class AzureSdkVoicePlugin implements FlutterPlugin, MethodCallHandler {
   /// when the Flutter Engine is detached from the Activity
   private MethodChannel channel;
 
+  private Context context;
+
   @Override
   public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
     channel = new MethodChannel(flutterPluginBinding.getBinaryMessenger(), "azure_sdk_voice");
     channel.setMethodCallHandler(this);
+
+    context = flutterPluginBinding.getApplicationContext();
+    recorderPlayer = new AudioRecorderPlayer(context);
   }
 
   private String key;
   private String region;
 
-  private AudioRecorderPlayer recorderPlayer = new AudioRecorderPlayer();
+  private AudioRecorderPlayer recorderPlayer;
 
   @Override
   public void onMethodCall(@NonNull MethodCall call, @NonNull Result result) {
@@ -59,7 +64,7 @@ public class AzureSdkVoicePlugin implements FlutterPlugin, MethodCallHandler {
       String language = call.argument("language");
       String topic = call.argument("topic");
 
-      String text = AzureSdk.pronunciationAssessmentWithContentAssessment(key,region,fileName,language,topic);
+      String text = AzureSdk.instance.pronunciationAssessmentWithContentAssessment(key,region,fileName,language,topic);
       result.success(text);
     } else if (call.method.equals("translate")) {
       Log.d("flutter_spf", "translate");
@@ -67,7 +72,7 @@ public class AzureSdkVoicePlugin implements FlutterPlugin, MethodCallHandler {
       String recLanguage = call.argument("recLanguage");
       String toLanguage = call.argument("toLanguage");
       try {
-        String text = AzureSdk.translateWav(key,region,fileName,recLanguage,toLanguage);
+        String text = AzureSdk.instance.translateWav(key,region,fileName,recLanguage,toLanguage);
         result.success(text);
         return;
       } catch (InterruptedException e) {
@@ -80,7 +85,7 @@ public class AzureSdkVoicePlugin implements FlutterPlugin, MethodCallHandler {
       Log.d("flutter_spf", "speak");
       String content = call.argument("content");
       try {
-        AzureSdk.synthesisToSpeaker(key,region,content);
+        AzureSdk.instance.synthesisToSpeaker(key,region,content);
       } catch (InterruptedException e) {
         e.printStackTrace();
       } catch (ExecutionException e) {

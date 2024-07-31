@@ -16,7 +16,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 public class AzureSdk {
-    public static void synthesisToSpeaker(String speechKey,String speechRegion,String inputText) throws InterruptedException, ExecutionException {
+    static final AzureSdk instance = new AzureSdk();
+
+    public void synthesisToSpeaker(String speechKey,String speechRegion,String inputText) throws InterruptedException, ExecutionException {
         SpeechConfig speechConfig = SpeechConfig.fromSubscription(speechKey, speechRegion);
 
         SpeechSynthesizer speechSynthesizer = new SpeechSynthesizer(speechConfig);
@@ -51,7 +53,43 @@ public class AzureSdk {
         synthesisThread.start();
     }
 
-    public static String translateWav(String speechKey,String speechRegion,String fileName,String recognitionLanguage,String toLanguage) throws InterruptedException, ExecutionException {
+    public void stopSynthesisToSpeaker(String speechKey,String speechRegion,String inputText) throws InterruptedException, ExecutionException {
+        SpeechConfig speechConfig = SpeechConfig.fromSubscription(speechKey, speechRegion);
+
+        SpeechSynthesizer speechSynthesizer = new SpeechSynthesizer(speechConfig);
+
+
+        Thread synthesisThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                SpeechSynthesisResult speechSynthesisResult = null;
+                try {
+                    speechSynthesisResult = speechSynthesizer.SpeakSsmlAsync(inputText).get();
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                if (speechSynthesisResult.getReason() == ResultReason.SynthesizingAudioCompleted) {
+                    System.out.println("Speech synthesized to speaker for text [" + inputText + "]");
+                }
+                else if (speechSynthesisResult.getReason() == ResultReason.Canceled) {
+                    SpeechSynthesisCancellationDetails cancellation = SpeechSynthesisCancellationDetails.fromResult(speechSynthesisResult);
+                    System.out.println("CANCELED: Reason=" + cancellation.getReason());
+
+                    if (cancellation.getReason() == CancellationReason.Error) {
+                        System.out.println("CANCELED: ErrorCode=" + cancellation.getErrorCode());
+                        System.out.println("CANCELED: ErrorDetails=" + cancellation.getErrorDetails());
+                        System.out.println("CANCELED: Did you set the speech resource key and region values?");
+                    }
+                }
+            }
+        });
+        synthesisThread.start();
+    }
+
+    public String translateWav(String speechKey,String speechRegion,String fileName,String recognitionLanguage,String toLanguage) throws InterruptedException, ExecutionException {
         SpeechTranslationConfig speechTranslationConfig = SpeechTranslationConfig.fromSubscription(speechKey, speechRegion);
 //        "en-US"
         speechTranslationConfig.setSpeechRecognitionLanguage(recognitionLanguage);
@@ -98,7 +136,7 @@ public class AzureSdk {
 
     }
 
-    public static String pronunciationAssessmentWithContentAssessment(String speechKey,String speechRegion,String fileName,String language,String topic) {
+    public String pronunciationAssessmentWithContentAssessment(String speechKey,String speechRegion,String fileName,String language,String topic) {
         SpeechConfig speechConfig = SpeechConfig.fromSubscription(speechKey, speechRegion);
         speechConfig.setSpeechRecognitionLanguage(language);
         PronunciationAssessmentConfig pronunciationConfig = new PronunciationAssessmentConfig("",

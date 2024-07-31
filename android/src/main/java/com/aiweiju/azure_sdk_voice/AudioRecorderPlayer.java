@@ -25,6 +25,11 @@ public class AudioRecorderPlayer {
     private Thread recordingThread;
     private boolean isRecording = false;
 
+    Context context;
+    public AudioRecorderPlayer(Context context){
+        this.context = context;
+    }
+
     private PcmToWavUtil ptwUtil = new PcmToWavUtil();
 
     public void startRecording(String fileName) {
@@ -64,7 +69,7 @@ public class AudioRecorderPlayer {
     private void writeAudioDataToFile(String fileName) {
         byte data[] = new byte[bufferSize];
 
-        File externalStorageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC);
+        File externalStorageDir = getMyDir();
 
         if (externalStorageDir != null) {
             String filePath = externalStorageDir.getAbsolutePath() + "/" + fileName + "_pcm" + AUDIO_RECORDER_FILE_EXT_WAV;
@@ -86,7 +91,7 @@ public class AudioRecorderPlayer {
     }
 
     private void audioDataToFile2Wav(String fileName) {
-        File externalStorageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC);
+        File externalStorageDir = getMyDir();
 
         if (externalStorageDir != null) {
             String filePathPcm = externalStorageDir.getAbsolutePath() + "/" + fileName + "_pcm" + AUDIO_RECORDER_FILE_EXT_WAV;
@@ -99,7 +104,7 @@ public class AudioRecorderPlayer {
         if (mediaPlayer == null) {
             mediaPlayer = new MediaPlayer();
             try {
-                File externalStorageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC);
+                File externalStorageDir = getMyDir();
                 if (externalStorageDir != null) {
                     String filePath = externalStorageDir.getAbsolutePath() + "/" + fileName + AUDIO_RECORDER_FILE_EXT_WAV;
                     mediaPlayer.setDataSource(filePath);
@@ -113,6 +118,13 @@ public class AudioRecorderPlayer {
             mediaPlayer.seekTo(0);
             mediaPlayer.start();
         }
+    }
+
+    private File getMyDir(){
+//        return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC);
+//        return Environment.getDownloadCacheDirectory();
+//        return Environment.getExternalStorageDirectory();
+        return context.getExternalCacheDir();
     }
 
     public void stopPlaying() {
