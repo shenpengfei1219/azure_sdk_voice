@@ -145,7 +145,9 @@ class _MyAppState extends State<MyApp> {
     </voice>
 </speak>
                   """;
-                var res = await _azureSdkVoicePlugin.speak(data);
+                var res = await _azureSdkVoicePlugin.speak(data,(res) {
+                  print("Callback for task received: $res");
+                });
                 print(res);
               },
               child: Container(
@@ -160,6 +162,27 @@ class _MyAppState extends State<MyApp> {
                 ),
               ),
             ),
+            Container(
+              height: 50,
+            ),
+            GestureDetector(
+              onTap: () async {
+                var res = await _azureSdkVoicePlugin.speakStop();
+                print(res);
+              },
+              child: Container(
+                padding: const EdgeInsets.all(20.0),
+                decoration: BoxDecoration(
+                  color: Colors.blue,
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                child: const Text(
+                  "speak stop",
+                  style: TextStyle(color: Colors.white, fontSize: 20.0),
+                ),
+              ),
+            ),
+
           ],
         )),
       ),

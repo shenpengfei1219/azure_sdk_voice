@@ -5,6 +5,8 @@ import androidx.annotation.NonNull;
 import android.content.Context;
 import android.util.Log;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
@@ -84,13 +86,27 @@ public class AzureSdkVoicePlugin implements FlutterPlugin, MethodCallHandler {
     } else if (call.method.equals("speak")) {
       Log.d("flutter_spf", "speak");
       String content = call.argument("content");
+      int code = call.argument("code");
       try {
-        AzureSdk.instance.synthesisToSpeaker(key,region,content);
+        AzureSdk.instance.synthesisToSpeaker(key,region,content,new Callback() {
+          @Override
+          public void onCallback(String result,boolean is_last) {
+            Map<String, Object> arguments = new HashMap<>();
+            arguments.put("code", code);
+            arguments.put("res", result);
+            arguments.put("is_last", is_last);
+            channel.invokeMethod("callback", arguments);
+          }
+        });
       } catch (InterruptedException e) {
         e.printStackTrace();
       } catch (ExecutionException e) {
         e.printStackTrace();
       }
+      result.success("OK");
+    } else if (call.method.equals("speak_stop")) {
+      Log.d("flutter_spf", "speak_stop");
+      AzureSdk.instance.stopSynthesisToSpeaker();
       result.success("OK");
     } else {
       result.notImplemented();

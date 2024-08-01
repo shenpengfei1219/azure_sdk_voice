@@ -35,7 +35,11 @@ class AzureSdkVoice {
         .translate(name, recLanguage, toLanguage);
   }
 
-  Future<String?> speak(String content) {
-    return AzureSdkVoicePlatform.instance.speak(content);
+  Future<String?> speak(String content,Function callback) {
+    return AzureSdkVoicePlatform.instance.speak(content,callback);
+  }
+
+  Future<String?> speakStop() {
+    return AzureSdkVoicePlatform.instance.speakStop();
   }
 }

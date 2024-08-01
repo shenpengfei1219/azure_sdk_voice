@@ -1,12 +1,18 @@
 package com.aiweiju.azure_sdk_voice;
 
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
 
 import com.microsoft.cognitiveservices.speech.*;
 import com.microsoft.cognitiveservices.speech.audio.AudioConfig;
 import com.microsoft.cognitiveservices.speech.translation.SpeechTranslationConfig;
 import com.microsoft.cognitiveservices.speech.translation.TranslationRecognitionResult;
 import com.microsoft.cognitiveservices.speech.translation.TranslationRecognizer;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.util.Map;
@@ -18,16 +24,29 @@ import java.util.concurrent.TimeoutException;
 public class AzureSdk {
     static final AzureSdk instance = new AzureSdk();
 
-    public void synthesisToSpeaker(String speechKey,String speechRegion,String inputText) throws InterruptedException, ExecutionException {
+    SpeechSynthesizer speechSynthesizer = null;
+
+    public void synthesisToSpeaker(String speechKey,String speechRegion,String inputText,Callback callback) throws InterruptedException, ExecutionException {
+        stopSynthesisToSpeaker();
         SpeechConfig speechConfig = SpeechConfig.fromSubscription(speechKey, speechRegion);
 
-        SpeechSynthesizer speechSynthesizer = new SpeechSynthesizer(speechConfig);
+        speechSynthesizer = new SpeechSynthesizer(speechConfig);
+
+        Handler handler = new Handler(Looper.getMainLooper());
 
         Thread synthesisThread = new Thread(new Runnable() {
             @Override
             public void run() {
                 SpeechSynthesisResult speechSynthesisResult = null;
                 try {
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            // 在这里更新播放状态
+                            callback.onCallback("start",false);
+                        }
+                    });
+
                     speechSynthesisResult = speechSynthesizer.SpeakSsmlAsync(inputText).get();
                 } catch (ExecutionException e) {
                     e.printStackTrace();
@@ -36,57 +55,39 @@ public class AzureSdk {
                 }
 
                 if (speechSynthesisResult.getReason() == ResultReason.SynthesizingAudioCompleted) {
-                    System.out.println("Speech synthesized to speaker for text [" + inputText + "]");
+                    Log.d("flutter_spf", "Speech synthesized to speaker for text [" + inputText + "]");
                 }
                 else if (speechSynthesisResult.getReason() == ResultReason.Canceled) {
                     SpeechSynthesisCancellationDetails cancellation = SpeechSynthesisCancellationDetails.fromResult(speechSynthesisResult);
-                    System.out.println("CANCELED: Reason=" + cancellation.getReason());
+                    Log.d("flutter_spf", "CANCELED: Reason=" + cancellation.getReason());
 
                     if (cancellation.getReason() == CancellationReason.Error) {
-                        System.out.println("CANCELED: ErrorCode=" + cancellation.getErrorCode());
-                        System.out.println("CANCELED: ErrorDetails=" + cancellation.getErrorDetails());
-                        System.out.println("CANCELED: Did you set the speech resource key and region values?");
+                        Log.d("flutter_spf", "CANCELED: ErrorCode=" + cancellation.getErrorCode());
+                        Log.d("flutter_spf", "CANCELED: ErrorDetails=" + cancellation.getErrorDetails());
+                        Log.d("flutter_spf", "CANCELED: Did you set the speech resource key and region values?");
                     }
                 }
+                Log.d("flutter_spf", "speak thread over");
+                speechSynthesizer = null;
+
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        // 在这里更新播放状态
+                        callback.onCallback("stop",true);
+                    }
+                });
             }
         });
         synthesisThread.start();
     }
 
-    public void stopSynthesisToSpeaker(String speechKey,String speechRegion,String inputText) throws InterruptedException, ExecutionException {
-        SpeechConfig speechConfig = SpeechConfig.fromSubscription(speechKey, speechRegion);
+    public void stopSynthesisToSpeaker() {
+        if (speechSynthesizer != null) {
+            speechSynthesizer.StopSpeakingAsync();
+            speechSynthesizer = null;
+        }
 
-        SpeechSynthesizer speechSynthesizer = new SpeechSynthesizer(speechConfig);
-
-
-        Thread synthesisThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                SpeechSynthesisResult speechSynthesisResult = null;
-                try {
-                    speechSynthesisResult = speechSynthesizer.SpeakSsmlAsync(inputText).get();
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-                if (speechSynthesisResult.getReason() == ResultReason.SynthesizingAudioCompleted) {
-                    System.out.println("Speech synthesized to speaker for text [" + inputText + "]");
-                }
-                else if (speechSynthesisResult.getReason() == ResultReason.Canceled) {
-                    SpeechSynthesisCancellationDetails cancellation = SpeechSynthesisCancellationDetails.fromResult(speechSynthesisResult);
-                    System.out.println("CANCELED: Reason=" + cancellation.getReason());
-
-                    if (cancellation.getReason() == CancellationReason.Error) {
-                        System.out.println("CANCELED: ErrorCode=" + cancellation.getErrorCode());
-                        System.out.println("CANCELED: ErrorDetails=" + cancellation.getErrorDetails());
-                        System.out.println("CANCELED: Did you set the speech resource key and region values?");
-                    }
-                }
-            }
-        });
-        synthesisThread.start();
     }
 
     public String translateWav(String speechKey,String speechRegion,String fileName,String recognitionLanguage,String toLanguage) throws InterruptedException, ExecutionException {
@@ -113,7 +114,16 @@ public class AzureSdk {
 
         if (translationRecognitionResult.getReason() == ResultReason.TranslatedSpeech) {
             System.out.println("RECOGNIZED: Text=" + translationRecognitionResult.getText());
-            return translationRecognitionResult.getTranslations().get(toLanguage);
+            try {
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("rec", translationRecognitionResult.getText());
+                jsonObject.put("trans", translationRecognitionResult.getTranslations().get(toLanguage));
+                String jsonData = jsonObject.toString();
+                return jsonData;
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+//            return translationRecognitionResult.getTranslations().get(toLanguage);
 //            for (Map.Entry<String, String> pair : translationRecognitionResult.getTranslations().entrySet()) {
 //                System.out.printf("Translated into '%s': %s\n", pair.getKey(), pair.getValue());
 //            }
