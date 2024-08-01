@@ -1,5 +1,6 @@
 package com.aiweiju.azure_sdk_voice;
 
+import android.content.Context;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
@@ -90,7 +91,7 @@ public class AzureSdk {
 
     }
 
-    public String translateWav(String speechKey,String speechRegion,String fileName,String recognitionLanguage,String toLanguage) throws InterruptedException, ExecutionException {
+    public String translateWav(Context context,String speechKey,String speechRegion,String fileName,String recognitionLanguage,String toLanguage) throws InterruptedException, ExecutionException {
         SpeechTranslationConfig speechTranslationConfig = SpeechTranslationConfig.fromSubscription(speechKey, speechRegion);
 //        "en-US"
         speechTranslationConfig.setSpeechRecognitionLanguage(recognitionLanguage);
@@ -100,7 +101,7 @@ public class AzureSdk {
             speechTranslationConfig.addTargetLanguage(toLanguage);
 //        }
 //        AudioConfig audioConfig = AudioConfig.fromDefaultMicrophoneInput();
-        File externalStorageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC);
+        File externalStorageDir = context.getExternalCacheDir();
 
         if (externalStorageDir == null) {
             return "";
@@ -146,7 +147,7 @@ public class AzureSdk {
 
     }
 
-    public String pronunciationAssessmentWithContentAssessment(String speechKey,String speechRegion,String fileName,String language,String topic) {
+    public String pronunciationAssessmentWithContentAssessment(Context context,String speechKey, String speechRegion, String fileName, String language, String topic) {
         SpeechConfig speechConfig = SpeechConfig.fromSubscription(speechKey, speechRegion);
         speechConfig.setSpeechRecognitionLanguage(language);
         PronunciationAssessmentConfig pronunciationConfig = new PronunciationAssessmentConfig("",
@@ -154,7 +155,7 @@ public class AzureSdk {
         pronunciationConfig.enableProsodyAssessment();
         pronunciationConfig.enableContentAssessmentWithTopic(topic);
 
-        File externalStorageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC);
+        File externalStorageDir = context.getExternalCacheDir();
 
         if (externalStorageDir == null) {
             return "";

@@ -66,7 +66,7 @@ public class AzureSdkVoicePlugin implements FlutterPlugin, MethodCallHandler {
       String language = call.argument("language");
       String topic = call.argument("topic");
 
-      String text = AzureSdk.instance.pronunciationAssessmentWithContentAssessment(key,region,fileName,language,topic);
+      String text = AzureSdk.instance.pronunciationAssessmentWithContentAssessment(context,key,region,fileName,language,topic);
       result.success(text);
     } else if (call.method.equals("translate")) {
       Log.d("flutter_spf", "translate");
@@ -74,7 +74,7 @@ public class AzureSdkVoicePlugin implements FlutterPlugin, MethodCallHandler {
       String recLanguage = call.argument("recLanguage");
       String toLanguage = call.argument("toLanguage");
       try {
-        String text = AzureSdk.instance.translateWav(key,region,fileName,recLanguage,toLanguage);
+        String text = AzureSdk.instance.translateWav(context,key,region,fileName,recLanguage,toLanguage);
         result.success(text);
         return;
       } catch (InterruptedException e) {
