@@ -21,6 +21,7 @@ class MethodChannelAzureSdkVoice extends AzureSdkVoicePlatform {
 
   // 处理原生代码的回调
   static Future<void> _handleNativeCall(MethodCall call) async {
+    print("_handleNativeCall");
     int code = call.arguments['code'];  // 假设原生代码会传回一个 'code'
     if (_callbacks.containsKey(code)) {
       _callbacks[code]?.call(call.arguments['res']);  // 调用回调，并传入数据
@@ -79,6 +80,20 @@ class MethodChannelAzureSdkVoice extends AzureSdkVoicePlatform {
       String name, String recLanguage, String toLanguage) async {
     final res = await methodChannel.invokeMethod<String>('translate',
         {'name': name, 'recLanguage': recLanguage, 'toLanguage': toLanguage});
+    return res;
+  }
+
+  @override
+  Future<String?> startTranslateContinuous(String recLanguage, String toLanguage,Function callback) async {
+    registerCallback(callback);
+    final res = await methodChannel.invokeMethod<String>('startTranslateContinuous',
+        {'code': code,'recLanguage': recLanguage, 'toLanguage': toLanguage});
+    return res;
+  }
+
+  @override
+  Future<String?> stopTranslateContinuous() async {
+    final res = await methodChannel.invokeMethod<String>('stopTranslateContinuous');
     return res;
   }
 

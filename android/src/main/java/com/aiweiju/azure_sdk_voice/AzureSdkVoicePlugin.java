@@ -83,6 +83,35 @@ public class AzureSdkVoicePlugin implements FlutterPlugin, MethodCallHandler {
         e.printStackTrace();
       }
       result.success("error");
+    } else if (call.method.equals("startTranslateContinuous")) {
+      Log.d("flutter_spf", "startTranslateContinuous");
+      String recLanguage = call.argument("recLanguage");
+      String toLanguage = call.argument("toLanguage");
+      int code = call.argument("code");
+      try {
+        AzureSdk.instance.startTranslateContinuous(key,region,recLanguage,toLanguage,new Callback() {
+          @Override
+          public void onCallback(String result,boolean is_last) {
+            Map<String, Object> arguments = new HashMap<>();
+            arguments.put("code", code);
+            arguments.put("res", result);
+            arguments.put("is_last", is_last);
+            channel.invokeMethod("callback", arguments);
+          }
+        });
+        result.success("OK");
+        return;
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      } catch (ExecutionException e) {
+        e.printStackTrace();
+      }
+      result.success("error");
+    }
+    else if (call.method.equals("stopTranslateContinuous")) {
+      Log.d("flutter_spf", "stopTranslateContinuous");
+      AzureSdk.instance.stopTranslateContinuous();
+      result.success("OK");;
     } else if (call.method.equals("speak")) {
       Log.d("flutter_spf", "speak");
       String content = call.argument("content");
@@ -106,7 +135,11 @@ public class AzureSdkVoicePlugin implements FlutterPlugin, MethodCallHandler {
       result.success("OK");
     } else if (call.method.equals("speak_stop")) {
       Log.d("flutter_spf", "speak_stop");
-      AzureSdk.instance.stopSynthesisToSpeaker();
+      try {
+        AzureSdk.instance.stopSynthesisToSpeaker();
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
       result.success("OK");
     } else {
       result.notImplemented();

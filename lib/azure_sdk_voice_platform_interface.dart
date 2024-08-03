@@ -54,6 +54,16 @@ abstract class AzureSdkVoicePlatform extends PlatformInterface {
         'translate(String name,String recLanguage,String toLanguage) has not been implemented.');
   }
 
+  Future<String?> startTranslateContinuous(String recLanguage, String toLanguage,Function callback) {
+    throw UnimplementedError(
+        'startTranslateContinuous(String recLanguage, String toLanguage,Function callback) has not been implemented.');
+  }
+
+  Future<String?> stopTranslateContinuous() {
+    throw UnimplementedError(
+        'stopTranslateContinuous has not been implemented.');
+  }
+
   Future<String?> speak(String content,Function callback) {
     throw UnimplementedError('speak(String content,Function callback) has not been implemented.');
   }

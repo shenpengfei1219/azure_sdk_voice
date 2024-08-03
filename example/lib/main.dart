@@ -38,8 +38,8 @@ class _MyAppState extends State<MyApp> {
           title: const Text('Plugin azure sdk voice app'),
         ),
         body: Center(
-            child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+            child: ListView(
+          // mainAxisAlignment: MainAxisAlignment.center,
           children: [
             GestureDetector(
               onLongPressStart: (details) async {
@@ -110,6 +110,7 @@ class _MyAppState extends State<MyApp> {
                 ),
               ),
             ),
+
             Container(
               height: 50,
             ),
@@ -131,6 +132,51 @@ class _MyAppState extends State<MyApp> {
                 ),
               ),
             ),
+
+            Container(
+              height: 50,
+            ),
+            GestureDetector(
+              onTap: () async {
+                var res = await _azureSdkVoicePlugin.startTranslateContinuous("zh-cn", "en",(res) {
+                  print("Callback for trans received: $res");
+                });
+                print(res);
+              },
+              child: Container(
+                padding: const EdgeInsets.all(20.0),
+                decoration: BoxDecoration(
+                  color: Colors.blue,
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                child: const Text(
+                  "start translate continuous",
+                  style: TextStyle(color: Colors.white, fontSize: 20.0),
+                ),
+              ),
+            ),
+
+            Container(
+              height: 50,
+            ),
+            GestureDetector(
+              onTap: () async {
+                var res = await _azureSdkVoicePlugin.stopTranslateContinuous();
+                print(res);
+              },
+              child: Container(
+                padding: const EdgeInsets.all(20.0),
+                decoration: BoxDecoration(
+                  color: Colors.blue,
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                child: const Text(
+                  "stop translate continuous",
+                  style: TextStyle(color: Colors.white, fontSize: 20.0),
+                ),
+              ),
+            ),
+
             Container(
               height: 50,
             ),

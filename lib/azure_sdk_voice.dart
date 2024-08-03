@@ -35,6 +35,16 @@ class AzureSdkVoice {
         .translate(name, recLanguage, toLanguage);
   }
 
+  Future<String?> startTranslateContinuous(String recLanguage, String toLanguage,Function callback) {
+    return AzureSdkVoicePlatform.instance
+        .startTranslateContinuous(recLanguage, toLanguage,callback);
+  }
+
+  Future<String?> stopTranslateContinuous() {
+    return AzureSdkVoicePlatform.instance
+        .stopTranslateContinuous();
+  }
+
   Future<String?> speak(String content,Function callback) {
     return AzureSdkVoicePlatform.instance.speak(content,callback);
   }
