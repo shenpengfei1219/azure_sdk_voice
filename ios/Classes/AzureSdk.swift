@@ -6,6 +6,7 @@ public class AzureSdk {
     var region: String! = ""
     
     var synthesizer: SPXSpeechSynthesizer!;
+    var isSpeaking: Bool = false;
     var translator: SPXTranslationRecognizer!;
     func initKeyRegion(key: String!,region: String!) {
         self.key = key
@@ -153,6 +154,9 @@ public class AzureSdk {
     }
 
     func synthesisToSpeaker(inputText: String) {
+        if isSpeaking {
+            stopSynthesisToSpeaker()
+        }
         let audioSession = AVAudioSession.sharedInstance()
         print("inputText \(inputText)")
         var speechConfig: SPXSpeechConfiguration?
@@ -160,6 +164,7 @@ public class AzureSdk {
             try audioSession.setCategory(.playAndRecord, mode: .default, options: .defaultToSpeaker) // 设置为默认使用扬声器
             try audioSession.setActive(true)
             try speechConfig = SPXSpeechConfiguration(subscription: key, region: region)
+            isSpeaking = true
         } catch {
             print("error \(error) happened")
             speechConfig = nil
@@ -226,6 +231,7 @@ public class AzureSdk {
     
     func stopSynthesisToSpeaker() {
         try! synthesizer.stopSpeaking()
+        isSpeaking = false
     }
 
 }
