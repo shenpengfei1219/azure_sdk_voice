@@ -230,8 +230,11 @@ public class AzureSdk {
     }
     
     func stopSynthesisToSpeaker() {
-        try! synthesizer.stopSpeaking()
-        isSpeaking = false
+        if synthesizer != nil {
+            try! synthesizer.stopSpeaking()
+            isSpeaking = false
+        }
+
     }
 
 }
