@@ -91,7 +91,7 @@ public class AzureSdkVoicePlugin: NSObject, FlutterPlugin {
           result(FlutterError(code: "INVALID_ARGUMENTS", message: "Invalid arguments", details: nil))
           return
       }
-        
+        _azureSdk.stopSynthesisToSpeaker()
         DispatchQueue.global(qos: .userInitiated).async {
             let arg2:[String:Any] = ["code":code,"res": "start","is_last":false]
             AzureSdkVoicePlugin.gChannel?.invokeMethod("callback", arguments: arg2)
